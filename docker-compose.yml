@@ -1,0 +1,37 @@
+services:
+  registry-service:
+    container_name: registry-service
+    build:
+      context: .
+      dockerfile: Dockerfile
+    platform: linux/amd64
+    ports:
+      - "8004:8004"
+    volumes:
+      - .:/app
+      - ./settings.xml:/root/.m2/settings.xml
+    depends_on:
+      - db_registry
+    networks:
+      - dokploy-network
+
+  db_registry:
+    container_name: db_registry
+    image: postgres:latest
+    environment:
+      POSTGRES_DB: cfregistry
+      POSTGRES_USER: docker
+      POSTGRES_PASSWORD: docker
+    volumes:
+      - "$HOME/cf-data/postgres/registry:/var/lib/postgresql"
+    ports:
+      - "5435:5432"
+    networks:
+      - dokploy-network
+
+volumes:
+  cf-data:
+
+networks:
+  dokploy-network:
+    external: true
