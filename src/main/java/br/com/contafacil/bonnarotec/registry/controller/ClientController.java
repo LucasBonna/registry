@@ -4,6 +4,7 @@ import br.com.contafacil.bonnarotec.registry.dto.client.CreateClientRequest;
 import br.com.contafacil.bonnarotec.registry.dto.client.UpdateClientRequest;
 import br.com.contafacil.bonnarotec.registry.dto.client.ClientResponse;
 import br.com.contafacil.bonnarotec.registry.service.interfaces.ClientService;
+import br.com.contafacil.shared.bonnarotec.toolslib.domain.client.ClientEntity;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -33,8 +34,8 @@ public class ClientController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ClientResponse> findById(@PathVariable UUID id) {
-        return ResponseEntity.ok(ClientResponse.fromEntity(clientService.findById(id)));
+    public ResponseEntity<ClientEntity> findById(@PathVariable UUID id) {
+        return ResponseEntity.ok(clientService.findById(id));
     }
 
     @GetMapping
