@@ -5,6 +5,7 @@ import br.com.contafacil.bonnarotec.registry.dto.client.UpdateClientRequest;
 import br.com.contafacil.bonnarotec.registry.dto.client.ClientResponse;
 import br.com.contafacil.bonnarotec.registry.service.interfaces.ClientService;
 import br.com.contafacil.shared.bonnarotec.toolslib.domain.client.ClientEntity;
+
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -48,4 +49,5 @@ public class ClientController {
         clientService.deleteById(id);
         return ResponseEntity.noContent().build();
     }
+
 }

@@ -20,4 +20,5 @@ public interface UserService {
     Page<UserResponse> findAll(Pageable pageable, UUID clientId);
     void deleteById(UUID id);
     boolean validatePassword(String username, String rawPassword);
+    UserEntity authenticate(String username, String password);
 }

@@ -14,6 +14,7 @@ import br.com.contafacil.shared.bonnarotec.toolslib.domain.user.UserDTO;
 import br.com.contafacil.shared.bonnarotec.toolslib.domain.user.UserEntity;
 import br.com.contafacil.shared.bonnarotec.toolslib.domain.user.UserRole;
 import jakarta.persistence.EntityNotFoundException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -30,8 +31,8 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final ClientService clientService;
-    private final PasswordEncoder passwordEncoder;
     private final ApiKeyGenerator apiKeyGenerator;
+    private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     @Override
     @Transactional
@@ -125,4 +126,22 @@ public class UserServiceImpl implements UserService {
                 
         return passwordEncoder.matches(rawPassword, user.getPassword());
     }
+
+    @Override
+    public UserEntity authenticate(String username, String password) {
+        UserEntity user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new EntityNotFoundException("User not found with username: " + username));
+        
+        boolean isPasswordMatch = passwordEncoder.matches(password, user.getPassword());
+        System.out.println("Password match: " + isPasswordMatch);
+        
+        if (!isPasswordMatch) {
+            throw new UnauthorizedException("Invalid credentials");
+        }
+
+        System.out.println("User authenticated: " + user);
+        
+        return user;
+    }
+
 }

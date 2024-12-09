@@ -4,8 +4,10 @@ import br.com.contafacil.bonnarotec.registry.dto.user.CreateUserRequest;
 import br.com.contafacil.bonnarotec.registry.dto.user.UpdateUserRequest;
 import br.com.contafacil.bonnarotec.registry.dto.user.UserResponse;
 import br.com.contafacil.bonnarotec.registry.service.interfaces.UserService;
+import br.com.contafacil.bonnarotec.registry.utils.JwtUtil;
 import br.com.contafacil.shared.bonnarotec.toolslib.domain.user.UserDTO;
 import br.com.contafacil.shared.bonnarotec.toolslib.domain.user.UserEntity;
+import br.com.contafacil.bonnarotec.registry.dto.auth.AuthRequestDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -17,11 +19,15 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
+import org.springframework.http.MediaType;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.util.UUID;
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/users")
@@ -31,6 +37,7 @@ public class UserController {
 
     private final UserService userService;
     private final ObjectMapper objectMapper;
+    private final JwtUtil jwtUtil;
 
     @Operation(
             summary = "Cria um novo usuario",
@@ -126,5 +133,25 @@ public class UserController {
     public ResponseEntity<Void> delete(@PathVariable UUID id) {
         userService.deleteById(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping(value = "/auth/login", produces = MediaType.APPLICATION_JSON_VALUE)
+    @Operation(summary = "Authenticate user")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Authentication successful"),
+        @ApiResponse(responseCode = "401", description = "Invalid credentials")
+    })
+    public ResponseEntity<Map<String, String>> login(@Valid @RequestBody AuthRequestDTO request) {
+        System.out.println("request: " + request);
+        try {
+            UserEntity user = userService.authenticate(request.getUsername(), request.getPassword());
+            String token = jwtUtil.generateToken(user);
+            Map<String, String> response = new HashMap<>();
+            response.put("token", token);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            System.out.println("error: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
     }
 }
