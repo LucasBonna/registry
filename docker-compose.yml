@@ -9,7 +9,6 @@ services:
       - "8004:8004"
     volumes:
       - .:/app
-      - ./settings.xml:/root/.m2/settings.xml
     depends_on:
       - db_registry
     networks:
